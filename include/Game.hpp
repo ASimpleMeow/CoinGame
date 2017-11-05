@@ -24,6 +24,7 @@ private:
 	sf::RenderWindow window;
 	sf::Font font;
 	std::vector<sf::Text> pileText;
+	std::vector<sf::Text> primesText;
 
 	int numPiles;
 	std::vector<int> piles;

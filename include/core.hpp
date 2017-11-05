@@ -14,8 +14,8 @@ const std::set<int> PRIMES{ 1,2,3,5,7,11,13,17,23 };
 constexpr int NUM_PILES{ 3 };
 constexpr int COINS_PER_PILE{ 28 };
 
-constexpr bool PLAYER_1_HUMAN{ false };
-constexpr bool PLAYER_2_HUMAN{ true };
+constexpr bool PLAYER_1_HUMAN{ true };
+constexpr bool PLAYER_2_HUMAN{ false };
 constexpr int MINIMAX_DEPTH{ 4 };
 
 enum class State {

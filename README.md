@@ -16,3 +16,5 @@ Two players play this game, and it also features a minimax AI player.
 - MiniMax AI (with a small element of randomness so it's not too predictable)
 - Numbers below each pile to show how much coins are in the pile
 - Coins in each pile are rendered as a yellow rectangle for now, they're arranged in a pyramid
+- Clicking on the number below the pile will select the pile, then clicking on the primes below will select the prime to use (NOTE: The displayed primes are all valid primes for the selected pile, the rest are hidden)
+- Selecting the pile and then the available prime will subtract that prime from the pile and end your turn
