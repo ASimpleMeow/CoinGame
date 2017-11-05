@@ -13,7 +13,7 @@ public:
 
 	Game();
 	void run();
-	bool hasWon(Player& p);
+	bool gameWon();
 
 private:
 	void init();
@@ -25,13 +25,13 @@ private:
 	sf::Font font;
 	std::vector<sf::Text> pileText;
 	std::vector<sf::Text> primesText;
+	sf::Text winText;
+	sf::Text playerInfoText;
 
 	int numPiles;
 	std::vector<int> piles;
 	int selectedPile;
 	int selectedPrime;
-
-	State gameState;
 
 	Player p1;
 	Player p2;

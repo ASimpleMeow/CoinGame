@@ -18,12 +18,5 @@ constexpr bool PLAYER_1_HUMAN{ true };
 constexpr bool PLAYER_2_HUMAN{ false };
 constexpr int MINIMAX_DEPTH{ 4 };
 
-enum class State {
-	PLAYER_1_TURN,
-	PLAYER_2_TURN,
-	PLAYER_1_WON,
-	PLAYER_2_WON
-};
-
 #endif // !CORE_HPP
 

@@ -5,26 +5,24 @@
 
 Game::Game() :	window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Coin Game"),
 				numPiles(NUM_PILES),
-				gameState{State::PLAYER_1_TURN},
 				p1(PLAYER_1_HUMAN),
 				p2(PLAYER_2_HUMAN)
 {
+
+	auto initializeText = [](const sf::Font& font, int charSize, const std::string str) {
+		sf::Text text;
+		text.setFont(font);
+		text.setCharacterSize(charSize);
+		text.setString(str);
+		return text;
+	};
+
 	srand(static_cast<int>(time(NULL)));
 	if (font.loadFromFile("media/font/retganon.ttf")) {
-		for (int i = 0; i < 3; ++i) {
-			sf::Text text;
-			text.setFont(font);
-			text.setCharacterSize(30);
-			text.setString("");
-			pileText.push_back(text);
-		}
-		for (auto prime : PRIMES) {
-			sf::Text text;
-			text.setFont(font);
-			text.setCharacterSize(30);
-			text.setString(std::to_string(prime));
-			primesText.push_back(text);
-		}
+		for (int i = 0; i < 3; ++i) pileText.push_back(initializeText(font, 30, ""));
+		for (auto prime : PRIMES) primesText.push_back(initializeText(font, 30, std::to_string(prime)));
+		winText = initializeText(font, 50, "");
+		playerInfoText = initializeText(font, 35, "");
 	} else {
 		std::cout << "Error reading font from media/font/ - needs trs-million.ttf font\n";
 	}
@@ -33,6 +31,7 @@ Game::Game() :	window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Coin Game"),
 }
 
 void Game::init() {
+	piles.clear();
 	for (int i = 0; i < numPiles; ++i) piles.push_back((rand() % COINS_PER_PILE) + 1);
 	current = &p1;
 	pileText[0].setPosition(150, WINDOW_HEIGHT / 3);
@@ -56,14 +55,11 @@ void Game::run() {
 	}
 }
 
-bool Game::hasWon(Player& p) {
-	if (current == &p) {
-		for (auto pile : piles) {
-			if (pile > 0) return false;
-		}
-		return true;
+bool Game::gameWon() {
+	for (auto pile : piles) {
+		if (pile > 0) return false;
 	}
-	return false;
+	return true;
 }
 
 
@@ -78,6 +74,11 @@ bool Game::processEvents() {
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) return false;
+
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
+		init();
+		return true;
+	}
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 		sf::Vector2f mouse{ sf::Mouse::getPosition(window) };
@@ -123,6 +124,8 @@ bool Game::processEvents() {
 }
 
 void Game::update(sf::Time deltaTime) {
+	if (gameWon()) return;
+
 	if (!current->isHuman()) {
 		current->takeTurn(piles);
 		current = current == &p1 ? &p2 : &p1;
@@ -146,6 +149,15 @@ void Game::update(sf::Time deltaTime) {
 
 void Game::render() {
 	window.clear(sf::Color::Black);
+
+	if (gameWon()) {
+		std::string winner = current == &p1 ? "2" : "1";
+		winText.setString("Player " + winner + " Has Won!");
+		winText.setPosition({WINDOW_WIDTH/3, WINDOW_HEIGHT/2});
+		window.draw(winText);
+		window.display();
+		return;
+	}
 
 	std::function<void(sf::Vector2f, int, int)> drawPile;
 	drawPile = [this, &drawPile](sf::Vector2f startLocation, int amount, int row) {
@@ -175,6 +187,10 @@ void Game::render() {
 	for (auto& prime : primesText) {
 		window.draw(prime);
 	}
+
+	std::string playerNum = current == &p1 ? "1" : "2";
+	playerInfoText.setString("Turn : Player " + playerNum);
+	window.draw(playerInfoText);
 
 	window.display();
 

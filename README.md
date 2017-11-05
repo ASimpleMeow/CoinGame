@@ -3,6 +3,8 @@
 A simple coin game made with SFML.
 Two players play this game, and it also features a minimax AI player.
 
+Press 'R' key to restart the game at any time
+
 
 ## Rules
 - There are 3 piles of coins, each pile has a random amount of coins between 1 and 28.
