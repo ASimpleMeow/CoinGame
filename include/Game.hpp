@@ -22,7 +22,9 @@ private:
 	void render();
 
 	sf::RenderWindow window;
-	
+	sf::Font font;
+	std::vector<sf::Text> pileText;
+
 	int numPiles;
 	std::vector<int> piles;
 	int selectedPile;

@@ -11,3 +11,8 @@ Two players play this game, and it also features a minimax AI player.
 - The next player does the same.
 - The game continues until there are no more coins left in any pile.
 - The winner is the player who took the last coin.
+
+## Features
+- MiniMax AI (with a small element of randomness so it's not too predictable)
+- Numbers below each pile to show how much coins are in the pile
+- Coins in each pile are rendered as a yellow rectangle for now, they're arranged in a pyramid

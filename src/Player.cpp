@@ -17,8 +17,7 @@ void Player::takeTurn(std::vector<int>& piles) {
 	for (auto pile : piles) pileAmount += pile;
 	skill = static_cast<int>(2.04642 + (8.43 - 2.04642) / (1 + powf((pileAmount / 17.86974), 1.15114)));
 
-	std::vector<int> copyPile(piles);
-	std::tuple<int, int> move = minimax(copyPile, 0);
+	std::tuple<int, int> move = minimax(piles, 0);
 
 	std::cout << "\nAI "<<skill<<": Pile : " << std::get<0>(move) << "   Prime : " << std::get<1>(move) << "\n\n";
 
@@ -33,12 +32,13 @@ std::tuple<int,int> Player::minimax(std::vector<int>& piles, int depth) {
 	float maxScore = -10000;
 	int maxPos = -1;
 	int finalValue = -1;
+	int pilePos{ 0 };
 
-	for (int pile = 0; pile < piles.size(); ++pile) {
-		for (auto prime : PRIMES) {
-			if (piles[pile] <= 0 || piles[pile] - prime < 0) break;
+	for (auto& pile : piles) {
+		for (auto& prime : PRIMES) {
+			if (pile < 1 || pile - prime < 0) break;
 
-			piles[pile] -= prime;
+			pile -= prime;
 
 			auto hasWon = [](std::vector<int>& piles) {
 				for (auto p : piles) {
@@ -47,7 +47,6 @@ std::tuple<int,int> Player::minimax(std::vector<int>& piles, int depth) {
 				return true;
 			};
 
-			// evaluate result (recursively)
 			if (hasWon(piles)) {
 				score = WIN_SCORE;
 			} else {
@@ -58,16 +57,20 @@ std::tuple<int,int> Player::minimax(std::vector<int>& piles, int depth) {
 				}
 			}
 
-			if (score>maxScore) {
+			if (abs(score - maxScore)<0.01 && ((double)rand()/RAND_MAX)<0.1) {
 				maxScore = score;
-				maxPos = pile;
+				maxPos = pilePos;
+				finalValue = prime;
+
+			} else if (score>maxScore) {
+				maxScore = score;
+				maxPos = pilePos;
 				finalValue = prime;
 			}
 
-			//undo move
-			piles[pile] += prime;
+			pile += prime;
 		}
+		pilePos++;
 	}
-
 	return{ maxPos, depth == 0 ? finalValue : maxScore };
 }

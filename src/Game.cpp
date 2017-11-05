@@ -10,12 +10,27 @@ Game::Game() :	window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Coin Game"),
 				p2(PLAYER_2_HUMAN)
 {
 	srand(static_cast<int>(time(NULL)));
+	if (font.loadFromFile("media/font/retganon.ttf")) {
+		for (int i = 0; i < 3; ++i) {
+			sf::Text text;
+			text.setFont(font);
+			text.setCharacterSize(30);
+			text.setString("");
+			pileText.push_back(text);
+		}
+	} else {
+		std::cout << "Error reading font from media/font/ - needs trs-million.ttf font\n";
+	}
 	init();
+	render();
 }
 
 void Game::init() {
 	for (int i = 0; i < numPiles; ++i) piles.push_back((rand() % COINS_PER_PILE) + 1);
 	current = &p1;
+	pileText[0].setPosition(150, WINDOW_HEIGHT / 3);
+	pileText[1].setPosition(390, WINDOW_HEIGHT / 3);
+	pileText[2].setPosition(640, WINDOW_HEIGHT / 3);
 }
 
 void Game::run() {
@@ -23,7 +38,7 @@ void Game::run() {
 
 	while (window.isOpen()) {
 		if (!processEvents()) break;
-		//update(clock.restart());
+		update(clock.restart());
 		render();
 	}
 }
@@ -50,7 +65,7 @@ bool Game::processEvents() {
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) return false;
-	return true;
+
 	if (current->isHuman()) {
 		std::cout << "Select a pile : ";
 		std::cin >> selectedPile;
@@ -95,9 +110,14 @@ void Game::render() {
 		drawPile({ startLocation.x + coinShape.getSize().x/1.5f, startLocation.y - coinShape.getSize().y*1.5f }, amount, --row);
 	};
 
-	int pileNum = 0;
+	auto leadingSpace{ 0 };
+	auto pileNum{ 0 };
 	for (auto p : piles) {
-		drawPile({(pileNum++ * 120.0f) + 50, WINDOW_WIDTH/5 }, p, 7);
+		drawPile({(leadingSpace++ * 120.0f) + 50, WINDOW_WIDTH/5 }, p, 7);
+		leadingSpace++;
+
+		pileText[pileNum].setString(std::to_string(p));
+		window.draw(pileText[pileNum]);
 		pileNum++;
 	}
 
