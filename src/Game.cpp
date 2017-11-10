@@ -18,6 +18,8 @@ Game::Game() :	window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Coin Game"),
 	};
 
 	srand(static_cast<int>(time(NULL)));
+
+	//Loading fonts and setting them to all the text
 	if (font.loadFromFile("media/font/retganon.ttf")) {
 		for (int i = 0; i < 3; ++i) pileText.push_back(initializeText(font, 30, ""));
 		for (auto prime : PRIMES) primesText.push_back(initializeText(font, 30, std::to_string(prime)));
@@ -26,6 +28,16 @@ Game::Game() :	window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Coin Game"),
 	} else {
 		std::cout << "Error reading font from media/font/ - needs trs-million.ttf font\n";
 	}
+
+	//Loading texture
+	if (!coinTexture.loadFromFile("media/texture/goldCoin.png")) {
+		std::cout << "Error reading texture from media/texture/ - needs goldCoin.png\n";
+	}
+
+	if (!backgroundTexture.loadFromFile("media/texture/background.jpg")) {
+		std::cout << "Error reading texture from media/texture/ - needs background.jpg\n";
+	}
+
 	init();
 	render();
 }
@@ -43,6 +55,11 @@ void Game::init() {
 		prime.setPosition({ xPos, WINDOW_HEIGHT / 1.75f });
 		xPos += WINDOW_WIDTH / 15;
 	}
+
+	background.setTexture(backgroundTexture);
+	float scaleX = (float)window.getSize().x / backgroundTexture.getSize().x;
+	float scaleY = (float)window.getSize().y / backgroundTexture.getSize().y;
+	background.setScale({ scaleX, scaleY });
 }
 
 void Game::run() {
@@ -71,14 +88,14 @@ bool Game::processEvents() {
 			window.close();
 			break;
 		}
+
+		if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::R) {
+			init();
+			return true;
+		}
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Escape)) return false;
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
-		init();
-		return true;
-	}
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 		sf::Vector2f mouse{ sf::Mouse::getPosition(window) };
@@ -102,7 +119,7 @@ bool Game::processEvents() {
 		}
 
 		if (selectedPile == -1) return true;
-		for (auto& text : primesText) text.setFillColor(sf::Color::Black);
+		for (auto& text : primesText) text.setFillColor(sf::Color(0,0,0,0));
 		for (int prime = 0; prime < primesText.size(); ++prime) {
 			int primeValue = *std::next(PRIMES.begin(), prime);
 			if (piles[selectedPile] - primeValue < 0) break;
@@ -141,7 +158,7 @@ void Game::update(sf::Time deltaTime) {
 		selectedPile = -1;
 		selectedPrime = -1;
 		for (auto& text : pileText) text.setFillColor(sf::Color::White);
-		for (auto& text : primesText) text.setFillColor(sf::Color::Black);
+		for (auto& text : primesText) text.setFillColor(sf::Color(0, 0, 0, 0));
 		return;
 	}
 	//std::cout << "You entered something wrong!" << std::endl;
@@ -149,6 +166,7 @@ void Game::update(sf::Time deltaTime) {
 
 void Game::render() {
 	window.clear(sf::Color::Black);
+	window.draw(background);
 
 	if (gameWon()) {
 		std::string winner = current == &p1 ? "2" : "1";
@@ -163,6 +181,7 @@ void Game::render() {
 	drawPile = [this, &drawPile](sf::Vector2f startLocation, int amount, int row) {
 		if (amount <= 0) return;
 		sf::RectangleShape coinShape({ WINDOW_WIDTH / 29, WINDOW_HEIGHT / 60 });
+		coinShape.setTexture(&coinTexture);
 		coinShape.setFillColor(sf::Color::Yellow);
 		for (int r = 0; r < row; ++r) {
 			if (amount <= 0) return;

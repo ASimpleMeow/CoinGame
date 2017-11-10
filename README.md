@@ -20,3 +20,4 @@ Press 'R' key to restart the game at any time
 - Coins in each pile are rendered as a yellow rectangle for now, they're arranged in a pyramid
 - Clicking on the number below the pile will select the pile, then clicking on the primes below will select the prime to use (NOTE: The displayed primes are all valid primes for the selected pile, the rest are hidden)
 - Selecting the pile and then the available prime will subtract that prime from the pile and end your turn
+- Textures

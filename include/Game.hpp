@@ -28,6 +28,10 @@ private:
 	sf::Text winText;
 	sf::Text playerInfoText;
 
+	sf::Texture coinTexture;
+	sf::Texture backgroundTexture;
+	sf::Sprite background;
+
 	int numPiles;
 	std::vector<int> piles;
 	int selectedPile;
