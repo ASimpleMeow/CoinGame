@@ -21,3 +21,4 @@ Press 'R' key to restart the game at any time
 - Clicking on the number below the pile will select the pile, then clicking on the primes below will select the prime to use (NOTE: The displayed primes are all valid primes for the selected pile, the rest are hidden)
 - Selecting the pile and then the available prime will subtract that prime from the pile and end your turn
 - Textures
+- When AI is thinking, the screen goes black and white text tells you that the AI is thinking

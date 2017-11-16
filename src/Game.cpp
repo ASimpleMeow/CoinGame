@@ -46,6 +46,10 @@ void Game::init() {
 	piles.clear();
 	for (int i = 0; i < numPiles; ++i) piles.push_back((rand() % COINS_PER_PILE) + 1);
 	current = &p1;
+
+	selectedPile = -1;
+	selectedPrime = -1;
+
 	pileText[0].setPosition(150, WINDOW_HEIGHT / 3);
 	pileText[1].setPosition(390, WINDOW_HEIGHT / 3);
 	pileText[2].setPosition(640, WINDOW_HEIGHT / 3);
@@ -216,6 +220,21 @@ void Game::render() {
 			window.draw(circle);
 		}
 		window.draw(prime);
+	}
+
+	if (!current->isHuman()) {
+		sf::RectangleShape rect;
+		rect.setPosition({0,0});
+		rect.setSize({ (float)WINDOW_WIDTH, (float)WINDOW_HEIGHT });
+		rect.setFillColor(sf::Color(0,0,0,150));
+		window.draw(rect);
+
+		sf::Text screenText;
+		screenText.setFont(font);
+		screenText.setString("AI IS THINKING...");
+		screenText.setCharacterSize(40);
+		screenText.setPosition({ (float)WINDOW_WIDTH / 2 - 100, (float)WINDOW_HEIGHT / 2 - 50});
+		window.draw(screenText);
 	}
 
 	std::string playerNum = current == &p1 ? "1" : "2";
