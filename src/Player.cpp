@@ -1,7 +1,6 @@
 #include "Player.hpp"
 
 #include <math.h>
-#include <iostream>
 
 Player::Player(bool isHuman) : human(isHuman),
 skill{6} {
@@ -18,8 +17,6 @@ void Player::takeTurn(std::vector<int>& piles) {
 	skill = static_cast<int>(2.04642 + (8.43 - 2.04642) / (1 + powf((pileAmount / 17.86974), 1.15114)));
 
 	std::tuple<int, int> move = minimax(piles, 0);
-
-	std::cout << "\nAI "<<skill<<": Pile : " << std::get<0>(move) << "   Prime : " << std::get<1>(move) << "\n\n";
 
 	piles[std::get<0>(move)] -= std::get<1>(move);
 }

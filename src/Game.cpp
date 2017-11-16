@@ -60,6 +60,7 @@ void Game::init() {
 	float scaleX = (float)window.getSize().x / backgroundTexture.getSize().x;
 	float scaleY = (float)window.getSize().y / backgroundTexture.getSize().y;
 	background.setScale({ scaleX, scaleY });
+	background.setColor(sf::Color(255, 255, 255, 100));
 }
 
 void Game::run() {
@@ -105,9 +106,9 @@ bool Game::processEvents() {
 			sf::FloatRect textRect;
 			pileText[pile].getTransform().transformRect(textRect);
 			textRect.top = pileText[pile].getPosition().y;
-			textRect.left = pileText[pile].getPosition().x;
-			textRect.width = 30;
-			textRect.height = 30;
+			textRect.left = pileText[pile].getPosition().x - 10;
+			textRect.width = 40;
+			textRect.height = 40;
 			if (textRect.contains(mouse)) {
 				selectedPile = pile;
 				pileText[pile].setFillColor(sf::Color::Green);
@@ -127,9 +128,9 @@ bool Game::processEvents() {
 			primesText[prime].getTransform().transformRect(textRect);
 
 			textRect.top = primesText[prime].getPosition().y;
-			textRect.left = primesText[prime].getPosition().x;
-			textRect.width = 35;
-			textRect.height = 35;
+			textRect.left = primesText[prime].getPosition().x - 10;
+			textRect.width = 40;
+			textRect.height = 40;
 
 			if (textRect.contains(mouse)) {
 				primesText[prime].setFillColor(sf::Color::Green);
@@ -161,7 +162,6 @@ void Game::update(sf::Time deltaTime) {
 		for (auto& text : primesText) text.setFillColor(sf::Color(0, 0, 0, 0));
 		return;
 	}
-	//std::cout << "You entered something wrong!" << std::endl;
 }
 
 void Game::render() {
@@ -198,12 +198,23 @@ void Game::render() {
 		drawPile({(leadingSpace++ * 120.0f) + 50, WINDOW_WIDTH/5 }, p, 7);
 		leadingSpace++;
 
+		sf::CircleShape circle(20);
+		circle.setPosition({ pileText[pileNum].getPosition().x - 12, pileText[pileNum].getPosition().y - 2 });
+		circle.setFillColor(sf::Color(0, 255, 0, 100));
+		window.draw(circle);
+
 		pileText[pileNum].setString(std::to_string(p));
 		window.draw(pileText[pileNum]);
 		pileNum++;
 	}
 
 	for (auto& prime : primesText) {
+		if (prime.getFillColor() != sf::Color(0, 0, 0, 0)) {
+			sf::CircleShape circle(20);
+			circle.setPosition({ prime.getPosition().x - 12, prime.getPosition().y - 2 });
+			circle.setFillColor(sf::Color(0,255,0,100));
+			window.draw(circle);
+		}
 		window.draw(prime);
 	}
 
