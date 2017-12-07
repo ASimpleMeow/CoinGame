@@ -13,7 +13,7 @@ public:
 	Player(bool isHuman);
 
 	bool isHuman();
-	void takeTurn(std::vector<int>& piles);
+	std::tuple<int, int> takeTurn(std::vector<int>& piles);
 
 private:
 	bool human;

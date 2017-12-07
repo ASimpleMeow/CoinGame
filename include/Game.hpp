@@ -5,6 +5,8 @@
 #include "Player.hpp"
 
 #include <vector>
+#include <stack>
+#include <tuple>
 
 class Game {
 public:
@@ -20,6 +22,9 @@ private:
 	bool processEvents();
 	void update(sf::Time deltaTime);
 	void render();
+	void undoMove();
+
+	std::stack<std::tuple<int, int>> undoStack;
 
 	sf::RenderWindow window;
 	sf::Font font;
@@ -27,6 +32,7 @@ private:
 	std::vector<sf::Text> primesText;
 	sf::Text winText;
 	sf::Text playerInfoText;
+	sf::Text undoButtonText;
 
 	sf::Texture coinTexture;
 	sf::Texture backgroundTexture;

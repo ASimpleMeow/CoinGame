@@ -11,7 +11,7 @@ bool Player::isHuman() {
 	return human;
 }
 
-void Player::takeTurn(std::vector<int>& piles) {
+std::tuple<int, int> Player::takeTurn(std::vector<int>& piles) {
 	int pileAmount{ 0 };
 	for (auto pile : piles) pileAmount += pile;
 	skill = static_cast<int>(2.04642 + (8.43 - 2.04642) / (1 + powf((pileAmount / 17.86974), 1.15114)));
@@ -19,6 +19,7 @@ void Player::takeTurn(std::vector<int>& piles) {
 	std::tuple<int, int> move = minimax(piles, 0);
 
 	piles[std::get<0>(move)] -= std::get<1>(move);
+	return move;
 }
 
 std::tuple<int,int> Player::minimax(std::vector<int>& piles, int depth) {

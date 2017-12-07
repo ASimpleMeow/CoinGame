@@ -22,3 +22,5 @@ Press 'R' key to restart the game at any time
 - Selecting the pile and then the available prime will subtract that prime from the pile and end your turn
 - Textures
 - When AI is thinking, the screen goes black and white text tells you that the AI is thinking
+- Undo button
+- Empty piles are gray in colour (the circle)

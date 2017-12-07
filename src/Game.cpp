@@ -25,6 +25,7 @@ Game::Game() :	window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Coin Game"),
 		for (auto prime : PRIMES) primesText.push_back(initializeText(font, 30, std::to_string(prime)));
 		winText = initializeText(font, 50, "");
 		playerInfoText = initializeText(font, 35, "");
+		undoButtonText = initializeText(font, 35, "Undo");
 	} else {
 		std::cout << "Error reading font from media/font/ - needs trs-million.ttf font\n";
 	}
@@ -38,6 +39,8 @@ Game::Game() :	window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Coin Game"),
 		std::cout << "Error reading texture from media/texture/ - needs background.jpg\n";
 	}
 
+	undoButtonText.setPosition({WINDOW_WIDTH*0.9f, 0});
+
 	init();
 	render();
 }
@@ -45,7 +48,7 @@ Game::Game() :	window(sf::VideoMode(WINDOW_WIDTH, WINDOW_HEIGHT), "Coin Game"),
 void Game::init() {
 	piles.clear();
 	for (int i = 0; i < numPiles; ++i) piles.push_back((rand() % COINS_PER_PILE) + 1);
-	current = &p1;
+	current = (rand()/RAND_MAX >= 0.5) ? &p1 : &p2;
 
 	selectedPile = -1;
 	selectedPrime = -1;
@@ -87,11 +90,34 @@ bool Game::gameWon() {
 
 bool Game::processEvents() {
 
+	auto isIntersectingText = [](sf::Vector2f &mouse, sf::Text &t, float delta, float width, float height) {
+		sf::FloatRect textRect;
+		t.getTransform().transformRect(textRect);
+		textRect.top = t.getPosition().y;
+		textRect.left = t.getPosition().x - delta;
+		textRect.width = width;
+		textRect.height = height;
+		return textRect.contains(mouse);
+	};
+
 	sf::Event event;
 	while (window.pollEvent(event)) {
 		if (event.type == sf::Event::Closed) {
 			window.close();
 			break;
+		}
+
+		if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::U) {
+			undoMove();
+		}
+
+		if (event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left) {
+			sf::Vector2f mouse{ sf::Mouse::getPosition(window) };
+			if (isIntersectingText(mouse, undoButtonText, 20, 100, 50)) {
+				std::cout << "Undo \n";
+				undoMove();
+			}
+
 		}
 
 		if (event.type == sf::Event::KeyReleased && event.key.code == sf::Keyboard::R) {
@@ -104,18 +130,11 @@ bool Game::processEvents() {
 
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
 		sf::Vector2f mouse{ sf::Mouse::getPosition(window) };
-		sf::FloatRect textRect;
 
 		for (int pile = 0; pile < pileText.size(); ++pile) {
-			sf::FloatRect textRect;
-			pileText[pile].getTransform().transformRect(textRect);
-			textRect.top = pileText[pile].getPosition().y;
-			textRect.left = pileText[pile].getPosition().x - 10;
-			textRect.width = 40;
-			textRect.height = 40;
-			if (textRect.contains(mouse)) {
+			if (isIntersectingText(mouse, pileText[pile], 10, 40, 40)) {
 				selectedPile = pile;
-				pileText[pile].setFillColor(sf::Color::Green);
+				pileText[pile].setFillColor(piles[pile] == 0 ? sf::Color::Black : sf::Color::Green);
 				for (int pile = 0; pile < pileText.size(); ++pile) {
 					if (selectedPile != pile) pileText[pile].setFillColor(sf::Color::White);
 				}
@@ -129,14 +148,7 @@ bool Game::processEvents() {
 			int primeValue = *std::next(PRIMES.begin(), prime);
 			if (piles[selectedPile] - primeValue < 0) break;
 			primesText[prime].setFillColor(sf::Color::White);
-			primesText[prime].getTransform().transformRect(textRect);
-
-			textRect.top = primesText[prime].getPosition().y;
-			textRect.left = primesText[prime].getPosition().x - 10;
-			textRect.width = 40;
-			textRect.height = 40;
-
-			if (textRect.contains(mouse)) {
+			if (isIntersectingText(mouse, primesText[prime], 10, 40, 40)) {
 				primesText[prime].setFillColor(sf::Color::Green);
 				selectedPrime = primeValue;
 			}
@@ -148,8 +160,11 @@ bool Game::processEvents() {
 void Game::update(sf::Time deltaTime) {
 	if (gameWon()) return;
 
+	for (auto i = 0; i < piles.size(); ++i) if (piles[i] == 0) pileText[i].setFillColor(sf::Color::Black);
+
 	if (!current->isHuman()) {
-		current->takeTurn(piles);
+		std::tuple<int,int> aiMove = current->takeTurn(piles);
+		undoStack.push(aiMove);
 		current = current == &p1 ? &p2 : &p1;
 		return;
 	}
@@ -159,6 +174,8 @@ void Game::update(sf::Time deltaTime) {
 	int diff = piles[selectedPile] - selectedPrime;
 	if (diff >= 0) {
 		piles[selectedPile] = diff;
+		std::tuple<int, int> humanMove = { selectedPile, selectedPrime };
+		undoStack.push(humanMove);
 		current = current == &p1 ? &p2 : &p1;
 		selectedPile = -1;
 		selectedPrime = -1;
@@ -204,7 +221,7 @@ void Game::render() {
 
 		sf::CircleShape circle(20);
 		circle.setPosition({ pileText[pileNum].getPosition().x - 12, pileText[pileNum].getPosition().y - 2 });
-		circle.setFillColor(sf::Color(0, 255, 0, 100));
+		circle.setFillColor(piles[pileNum] == 0 ? sf::Color(100,100,100,175) : sf::Color(0, 255, 0, 100));
 		window.draw(circle);
 
 		pileText[pileNum].setString(std::to_string(p));
@@ -240,8 +257,26 @@ void Game::render() {
 	std::string playerNum = current == &p1 ? "1" : "2";
 	playerInfoText.setString("Turn : Player " + playerNum);
 	window.draw(playerInfoText);
+	
+	//Undo button
+	sf::RectangleShape buttonShape;
+	buttonShape.setPosition({ undoButtonText.getPosition().x - 25, undoButtonText.getPosition().y });
+	buttonShape.setSize({ 100, 50 });
+	buttonShape.setFillColor(sf::Color::Blue);
+	window.draw(buttonShape);
+	window.draw(undoButtonText);
 
 	window.display();
 
+}
+
+void Game::undoMove() {
+	if (undoStack.empty() || undoStack.size() < 2) return;
+
+	for (auto amount = 2; amount > 0; --amount) {
+		std::tuple<int, int> lastMove = undoStack.top();
+		undoStack.pop();
+		piles[std::get<0>(lastMove)] += std::get<1>(lastMove);
+	}
 }
 

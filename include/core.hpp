@@ -15,8 +15,7 @@ constexpr int NUM_PILES{ 3 };
 constexpr int COINS_PER_PILE{ 28 };
 
 constexpr bool PLAYER_1_HUMAN{ true };
-constexpr bool PLAYER_2_HUMAN{ false };
-constexpr int MINIMAX_DEPTH{ 4 };
+constexpr bool PLAYER_2_HUMAN{ true };
 
 #endif // !CORE_HPP
 
